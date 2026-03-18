@@ -1,0 +1,172 @@
+:host {
+  display: block;
+}
+
+.container {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.equipment-page {
+  padding: 36px 0 72px;
+}
+
+.search-wrap {
+  margin-bottom: 24px;
+}
+
+.search-field {
+  width: 100%;
+}
+
+.state-box {
+  padding: 22px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #e5ece6;
+  color: #607065;
+}
+
+.loading-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.equipment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+.equipment-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.card-media {
+  position: relative;
+  height: 180px;
+  background: #eef3ef;
+}
+
+.card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.stock-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.available {
+  background: #18b36b;
+}
+
+.unavailable {
+  background: #f04b4b;
+}
+
+.card-content {
+  flex: 1;
+}
+
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.title-row h3 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.02rem;
+  line-height: 1.35;
+}
+
+.mini-price {
+  flex-shrink: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #2e7d32;
+  white-space: nowrap;
+}
+
+.subtitle {
+  margin: 10px 0 14px;
+  color: #64748b;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  min-height: 42px;
+}
+
+.chip-row {
+  margin-bottom: 10px;
+}
+
+.price-row {
+  margin-top: auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+
+.price {
+  margin: 0;
+  color: #111827;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.price-note {
+  display: block;
+  margin-top: 4px;
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+.rent-btn.disabled {
+  background: #cfd8d1 !important;
+  color: #fff !important;
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .equipment-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .card-media {
+    height: 140px;
+  }
+
+  .title-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .price-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rent-btn {
+    width: 100%;
+  }
+}

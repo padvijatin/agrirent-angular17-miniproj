@@ -39,8 +39,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "900kb",
+                  "maximumError": "1.2mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -60,6 +60,9 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "host": "127.0.0.1"
+          },
           "configurations": {
             "production": {
               "buildTarget": "agrirent:build:production"
@@ -96,5 +99,10 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "79fc09b0-1e28-4af6-a802-ee240dc0f27d"
   }
 }
+
+

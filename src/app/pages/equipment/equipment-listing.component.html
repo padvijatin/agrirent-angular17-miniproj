@@ -1,0 +1,69 @@
+<section class="equipment-page">
+  <div class="container">
+    <div class="search-wrap">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search equipment</mat-label>
+        <input
+          matInput
+          type="text"
+          [(ngModel)]="searchText"
+          (ngModelChange)="applySearch()"
+          placeholder="Search by name, category, description, or location"
+        >
+      </mat-form-field>
+    </div>
+
+    <div *ngIf="loading" class="state-box loading-box">
+      <mat-spinner diameter="38"></mat-spinner>
+      <span>Loading equipment...</span>
+    </div>
+
+    <div *ngIf="!loading && filteredEquipment.length === 0" class="state-box">
+      No equipment found.
+    </div>
+
+    <div class="equipment-grid" *ngIf="!loading && filteredEquipment.length > 0">
+      <mat-card class="equipment-card" *ngFor="let item of filteredEquipment">
+        <div class="card-media">
+          <img [src]="item.imageUrl || 'https://placehold.co/640x420?text=AgriRent'" [alt]="item.name">
+
+          <span class="stock-badge" [class.available]="item.available" [class.unavailable]="!item.available">
+            {{ item.available ? 'Available' : 'Unavailable' }}
+          </span>
+        </div>
+
+        <mat-card-content class="card-content">
+          <div class="title-row">
+            <h3>{{ item.name }}</h3>
+            <span class="mini-price">Rs {{ item.pricePerDay }}</span>
+          </div>
+
+          <p class="subtitle">{{ item.description }}</p>
+
+          <mat-chip-set class="chip-row">
+            <mat-chip class="agrirent-chip">{{ item.category | titlecase }}</mat-chip>
+            <mat-chip *ngIf="item.location">{{ item.location }}</mat-chip>
+            <mat-chip *ngIf="item.available">Ready to rent</mat-chip>
+          </mat-chip-set>
+        </mat-card-content>
+
+        <mat-card-actions class="price-row">
+          <div>
+            <p class="price">Rs {{ item.pricePerDay }}</p>
+            <span class="price-note">Per day rental</span>
+          </div>
+
+          <a
+            mat-flat-button
+            class="agrirent-btn rent-btn"
+            [class.disabled]="!item.available"
+            [routerLink]="item.available ? ['/booking'] : ['/equipment']"
+            [queryParams]="item.available ? { equipmentId: item.id, name: item.name, pricePerDay: item.pricePerDay, location: item.location || '', imageUrl: item.imageUrl || '' } : null"
+          >
+            {{ item.available ? 'Rent Now' : 'View' }}
+          </a>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+</section>

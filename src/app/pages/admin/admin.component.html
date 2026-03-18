@@ -1,0 +1,349 @@
+<section class="admin-page">
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="sidebar-top">
+        <p class="eyebrow">Admin Panel</p>
+        <h1>AgriRent Workspace</h1>
+        <p>Manage your equipment, booking requests, and users from one simple dashboard.</p>
+      </div>
+
+      <button class="side-link" [class.active]="activeSection === 'overview'" (click)="setSection('overview')">
+        <span class="icon-box"><mat-icon>dashboard</mat-icon></span>
+        <span>
+          <strong>Dashboard</strong>
+          <small>Quick summary</small>
+        </span>
+      </button>
+
+      <button class="side-link" [class.active]="activeSection === 'equipment'" (click)="setSection('equipment')">
+        <span class="icon-box"><mat-icon>inventory_2</mat-icon></span>
+        <span>
+          <strong>Equipment</strong>
+          <small>CRUD listings</small>
+        </span>
+      </button>
+
+      <button class="side-link" [class.active]="activeSection === 'bookings'" (click)="setSection('bookings')">
+        <span class="icon-box"><mat-icon>event_note</mat-icon></span>
+        <span>
+          <strong>Bookings</strong>
+          <small>Approve or reject</small>
+        </span>
+      </button>
+
+      <button class="side-link" [class.active]="activeSection === 'users'" (click)="setSection('users')">
+        <span class="icon-box"><mat-icon>groups</mat-icon></span>
+        <span>
+          <strong>Users</strong>
+          <small>All registered users</small>
+        </span>
+      </button>
+
+      <div class="profile-box">
+        <p class="eyebrow">Signed In</p>
+        <h3>{{ userName$ | async }}</h3>
+        <p>{{ userEmail$ | async }}</p>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <mat-card class="hero-card">
+        <div class="hero-copy">
+          <p class="eyebrow">Workspace</p>
+          <h2>Owner Control Center</h2>
+          <p>See your equipment status, booking requests, and user activity in one place.</p>
+        </div>
+        <button mat-flat-button class="agrirent-btn hero-action" (click)="openEquipmentForm()">
+          <mat-icon>add</mat-icon>
+          <span>Add Equipment</span>
+        </button>
+      </mat-card>
+
+      <div class="message success" *ngIf="successMessage">{{ successMessage }}</div>
+      <div class="message error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+      <section *ngIf="activeSection === 'overview'" class="section-stack">
+        <div class="stats-grid">
+          <mat-card class="stat-card">
+            <p>Total Equipment</p>
+            <h3>{{ totalEquipment }}</h3>
+          </mat-card>
+          <mat-card class="stat-card">
+            <p>Available</p>
+            <h3>{{ availableEquipment }}</h3>
+          </mat-card>
+          <mat-card class="stat-card">
+            <p>Booked</p>
+            <h3>{{ bookedEquipment }}</h3>
+          </mat-card>
+          <mat-card class="stat-card">
+            <p>Total Users</p>
+            <h3>{{ totalUsers }}</h3>
+          </mat-card>
+        </div>
+
+        <mat-card class="panel">
+          <div class="panel-head">
+            <h3>Overview</h3>
+          </div>
+          <div class="overview-list">
+            <div class="overview-row">
+              <span>Total listings in your account</span>
+              <strong>{{ totalEquipment }}</strong>
+            </div>
+            <div class="overview-row">
+              <span>Equipment currently available for rent</span>
+              <strong>{{ availableEquipment }}</strong>
+            </div>
+            <div class="overview-row">
+              <span>Approved bookings</span>
+              <strong>{{ bookedEquipment }}</strong>
+            </div>
+            <div class="overview-row">
+              <span>Pending requests waiting for action</span>
+              <strong>{{ pendingBookings }}</strong>
+            </div>
+            <div class="overview-row">
+              <span>Registered owners</span>
+              <strong>{{ ownerUsers }}</strong>
+            </div>
+            <div class="overview-row">
+              <span>Platform admins</span>
+              <strong>{{ adminUsers }}</strong>
+            </div>
+          </div>
+        </mat-card>
+      </section>
+
+      <section *ngIf="activeSection === 'equipment'" class="section-stack">
+        <mat-card class="panel" *ngIf="showForm">
+          <div class="panel-head compact-head">
+            <h3>{{ isEditing ? 'Edit Equipment' : 'Add Equipment' }}</h3>
+            <button mat-stroked-button class="agrirent-btn-secondary" (click)="toggleForm()">
+              <mat-icon>close</mat-icon>
+              <span>Close</span>
+            </button>
+          </div>
+
+          <form (ngSubmit)="onSubmit()" class="admin-form">
+            <div class="form-grid">
+              <div class="form-group full">
+                <mat-form-field appearance="outline">
+                  <mat-label>Equipment Name</mat-label>
+                  <input matInput [(ngModel)]="equipment.name" name="name" required>
+                  <mat-error *ngIf="formSubmitted && !equipment.name?.trim()">Equipment name is required</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-group full">
+                <mat-form-field appearance="outline">
+                  <mat-label>Description</mat-label>
+                  <textarea matInput rows="4" [(ngModel)]="equipment.description" name="description" required></textarea>
+                  <mat-error *ngIf="formSubmitted && !equipment.description?.trim()">Description is required</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field appearance="outline">
+                  <mat-label>Price Per Day</mat-label>
+                  <input matInput type="number" [(ngModel)]="equipment.pricePerDay" name="pricePerDay" min="1" required>
+                  <mat-error *ngIf="formSubmitted && equipment.pricePerDay <= 0">Price must be greater than 0</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field appearance="outline">
+                  <mat-label>Category</mat-label>
+                  <mat-select [(ngModel)]="equipment.category" name="category" required>
+                    <mat-option value="">Select a category</mat-option>
+                    <mat-option *ngFor="let cat of categories" [value]="cat">{{ cat | titlecase }}</mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="formSubmitted && !equipment.category?.trim()">Category is required</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-group full">
+                <mat-form-field appearance="outline">
+                  <mat-label>Location</mat-label>
+                  <input matInput [(ngModel)]="equipment.location" name="location">
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="upload-box">
+              <div>
+                <strong>Equipment Image</strong>
+                <p>Upload JPG, PNG, or WEBP. Max size: 10 MB.</p>
+              </div>
+              <div class="upload-actions">
+                <input #imageInputRef type="file" (change)="onFileSelected($event)" accept="image/png,image/jpeg,image/webp" id="imageInput">
+                <label for="imageInput" class="text-btn filled">Choose Image</label>
+                <span class="file-name" *ngIf="selectedFile">{{ selectedFile.name }}</span>
+              </div>
+            </div>
+
+            <div class="preview-box" *ngIf="imagePreview">
+              <img [src]="imagePreview" alt="Preview">
+              <button mat-stroked-button type="button" class="agrirent-btn-secondary" (click)="removeImage()">
+                <mat-icon>delete</mat-icon>
+                <span>Remove</span>
+              </button>
+            </div>
+
+            <mat-checkbox [(ngModel)]="equipment.available" name="available">Available for Rent</mat-checkbox>
+
+            <button mat-flat-button type="submit" class="agrirent-btn wide" [disabled]="loading">
+              <mat-icon>{{ isEditing ? 'save' : 'add_circle' }}</mat-icon>
+              <span>{{ loading ? (isEditing ? 'Updating...' : 'Saving...') : (isEditing ? 'Update Equipment' : 'Add Equipment') }}</span>
+            </button>
+          </form>
+        </mat-card>
+
+        <mat-card class="panel">
+          <div class="panel-head compact-head">
+            <h3>Equipment List</h3>
+            <button mat-stroked-button class="agrirent-btn-secondary" (click)="openEquipmentForm()">
+              <mat-icon>add</mat-icon>
+              <span>{{ showForm ? 'Add Another' : 'Open Form' }}</span>
+            </button>
+          </div>
+
+          <div *ngIf="listLoading" class="empty-state">Loading your equipment...</div>
+          <div *ngIf="!listLoading && equipmentList.length === 0" class="empty-state">No equipment added yet.</div>
+
+          <div class="table-wrap" *ngIf="!listLoading && equipmentList.length > 0">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Location</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of equipmentList">
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.category | titlecase }}</td>
+                  <td>Rs {{ item.pricePerDay }}</td>
+                  <td>{{ item.location || '-' }}</td>
+                  <td>
+                    <span class="status-tag" [class.approved]="item.available" [class.cancelled]="!item.available">
+                      {{ item.available ? 'Available' : 'Unavailable' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="table-actions">
+                      <button mat-flat-button type="button" class="agrirent-btn action-btn" (click)="editEquipment(item)">
+                        <mat-icon>edit</mat-icon>
+                        <span>Edit</span>
+                      </button>
+                      <button mat-stroked-button type="button" class="agrirent-btn-secondary action-btn" (click)="deleteEquipment(item)">
+                        <mat-icon>delete</mat-icon>
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </mat-card>
+      </section>
+
+      <mat-card *ngIf="activeSection === 'bookings'" class="panel">
+        <div class="panel-head compact-head">
+          <h3>Booking Requests</h3>
+          <span class="muted">Approve, reject, or cancel requests from here.</span>
+        </div>
+
+        <div *ngIf="bookingsLoading" class="empty-state">Loading booking requests...</div>
+        <div *ngIf="!bookingsLoading && bookingList.length === 0" class="empty-state">No booking requests yet.</div>
+
+        <div class="table-wrap" *ngIf="!bookingsLoading && bookingList.length > 0">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Equipment</th>
+                <th>Customer</th>
+                <th>Dates</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let booking of bookingList; trackBy: trackByBooking">
+                <td>{{ booking.equipment?.name || '-' }}</td>
+                <td>{{ booking.user?.fullName || booking.user?.email || 'User' }}</td>
+                <td>{{ booking.startDate | date:'dd MMM y' }} - {{ booking.endDate | date:'dd MMM y' }}</td>
+                <td>Rs {{ booking.totalPrice }}</td>
+                <td>
+                  <span class="status-tag" [class.pending]="booking.status === 'pending'" [class.approved]="booking.status === 'approved'" [class.rejected]="booking.status === 'rejected'" [class.cancelled]="booking.status === 'cancelled'">
+                    {{ booking.status | titlecase }}
+                  </span>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <button mat-flat-button type="button" class="agrirent-btn action-btn" *ngIf="canApprove(booking)" [disabled]="actionBookingId === booking.id" (click)="updateBookingStatus(booking, 'approved')">
+                      <mat-icon>check_circle</mat-icon>
+                      <span>Approve</span>
+                    </button>
+                    <button mat-stroked-button type="button" class="agrirent-btn-secondary action-btn" *ngIf="canReject(booking)" [disabled]="actionBookingId === booking.id" (click)="updateBookingStatus(booking, 'rejected')">
+                      <mat-icon>cancel</mat-icon>
+                      <span>Reject</span>
+                    </button>
+                    <button mat-stroked-button type="button" class="agrirent-btn-secondary action-btn" *ngIf="canCancel(booking)" [disabled]="actionBookingId === booking.id" (click)="updateBookingStatus(booking, 'cancelled')">
+                      <mat-icon>block</mat-icon>
+                      <span>Cancel</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </mat-card>
+
+      <mat-card *ngIf="activeSection === 'users'" class="panel">
+        <div class="panel-head compact-head">
+          <h3>All Users</h3>
+          <span class="muted">View all registered users on the platform.</span>
+        </div>
+
+        <div *ngIf="usersLoading" class="empty-state">Loading users...</div>
+        <div *ngIf="!usersLoading && userList.length === 0" class="empty-state">No users found.</div>
+
+        <div class="table-wrap" *ngIf="!usersLoading && userList.length > 0">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of userList; trackBy: trackByUser">
+                <td>{{ user.fullName || 'User' }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.phone || 'No phone number' }}</td>
+                <td>
+                  <span class="status-tag" [class.approved]="user.role === 'admin' || user.role === 'owner'" [class.pending]="user.role === 'user'">
+                    {{ user.role | titlecase }}
+                  </span>
+                </td>
+                <td>{{ user.createdAt ? (user.createdAt | date:'dd MMM y') : '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+</section>
+

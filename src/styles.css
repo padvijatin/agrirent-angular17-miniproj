@@ -1,1 +1,45 @@
-/* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+body {
+  margin: 0;
+  padding-top: 75px;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f7faf7;
+  color: #1f2937;
+}
+
+mat-card {
+  border-radius: 20px !important;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+}
+
+.agrirent-btn,
+.agrirent-btn.mat-mdc-raised-button:not(:disabled),
+.agrirent-btn.mat-mdc-unelevated-button:not(:disabled) {
+  background: #2e7d32 !important;
+  color: #fff !important;
+}
+
+.agrirent-btn-secondary,
+.agrirent-btn-secondary.mat-mdc-outlined-button {
+  color: #1f6a35 !important;
+  border-color: #cfe0d1 !important;
+}
+
+.agrirent-chip {
+  background: #e8f5e9 !important;
+  color: #166534 !important;
+}
+
+.admin-page{padding:20px 16px 56px}.admin-shell{max-width:1210px;margin:auto;display:grid;grid-template-columns:240px 1fr;gap:16px}.admin-sidebar,.hero-card,.panel,.stat-card{background:#fff;border:1px solid #e4ece5;border-radius:20px;box-shadow:0 12px 28px rgba(15,23,42,.05)}.admin-sidebar{padding:16px;display:grid;gap:10px;align-content:start;position:sticky;top:88px}.sidebar-top{display:grid;gap:4px}.eyebrow{margin:0;color:#2e7d32;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.sidebar-top p:last-child,.hero-card p,.message,.empty-state,.muted,.upload-box p,.file-name,.overview-row span{color:#64748b}.sidebar-top h1,.hero-card h2,.panel h3{margin:0;color:#1f2937}.sidebar-top h1{font-size:1.25rem}.hero-card h2{font-size:1.4rem}.side-link,.icon-box,.text-btn,.primary-btn,.action-btn,.hero-action{display:inline-flex;align-items:center}.side-link{gap:10px;width:100%;padding:12px;border:1px solid #e4ece5;border-radius:16px;background:#f8fbf8;color:#1f2937;text-align:left;cursor:pointer}.side-link span:last-child{display:grid;gap:2px}.side-link strong{font-size:.94rem;line-height:1.2}.side-link small{color:#64748b;font-size:.78rem}.side-link.active{border-color:#cfe0d1;background:#eef7f0;color:#1f6a35}.icon-box{width:36px;height:36px;justify-content:center;border-radius:12px;background:#1f6a35;color:#fff;flex-shrink:0}.profile-box{margin-top:6px;padding:14px;border-radius:16px;background:#f8fbf8;border:1px solid #e4ece5}.profile-box h3{margin:4px 0;color:#1f2937;font-size:1rem}.profile-box p:last-child{margin:0;font-size:.88rem}.admin-main,.section-stack{display:grid;gap:16px}.hero-card,.panel{padding:18px}.hero-card,.panel-head,.table-actions{display:flex;justify-content:space-between;gap:10px}.hero-card,.panel-head{align-items:center}.hero-copy{display:grid;gap:6px}.hero-action,.action-btn{gap:6px}.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.stat-card{padding:16px}.stat-card p,.stat-card h3{margin:0}.stat-card h3{margin-top:6px;color:#1f6a35;font-size:1.85rem}.overview-list{display:grid;gap:4px}.overview-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #eef2ef}.overview-row:last-child{border-bottom:none}.message{padding:12px 14px;border-radius:14px;font-weight:600}.success{background:#e6f7ea;color:#166534;border:1px solid #cbe8d2}.error{background:#fde8e8;color:#b42318;border:1px solid #f7c9c9}.admin-form{display:grid;gap:12px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.form-group{display:grid;gap:6px}.form-group.full{grid-column:span 2}.field-error{font-size:.82rem;color:#b91c1c}.upload-box{display:grid;grid-template-columns:1fr auto;gap:8px;padding:14px;border:1px dashed #cfe0d1;border-radius:16px;background:#f8fbf8}.upload-actions,.table-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.upload-actions input[type='file']{display:none}.preview-box{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid #e4ece5;border-radius:16px;background:#f8fbf8}.preview-box img{width:96px;height:72px;object-fit:cover;border-radius:10px}.text-btn{padding:8px 12px;background:#edf4ee;color:#1f6a35;font:inherit;font-weight:700;border-radius:12px;border:none;cursor:pointer}.text-btn.filled{background:#1f6a35;color:#fff}.status-tag{display:inline-flex;align-items:center;padding:5px 10px;border-radius:999px;font-size:.74rem;font-weight:700}.status-tag.pending{background:#fff1d9;color:#b96a00}.status-tag.approved{background:#ddf5e6;color:#14824b}.status-tag.rejected,.status-tag.cancelled{background:#fee2e2;color:#b42318}.empty-state{padding:6px 0}.table-wrap{overflow:auto}.admin-table{width:100%;border-collapse:collapse}.admin-table th,.admin-table td{padding:12px 10px;border-bottom:1px solid #eef2ef;text-align:left;vertical-align:middle}.admin-table th{color:#334155;font-size:.86rem}.admin-table td{font-size:.92rem}.admin-table tbody tr:hover{background:#fafdfb}.compact-head .mat-mdc-button-base,.table-actions .mat-mdc-button-base,.hero-action.mat-mdc-button-base{min-width:auto}.wide{width:100%}@media (max-width:1080px){.admin-shell,.stats-grid{grid-template-columns:1fr}.admin-sidebar{position:static}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:760px){.hero-card,.panel-head,.upload-box,.preview-box{flex-direction:column;align-items:flex-start}.form-grid,.stats-grid{grid-template-columns:1fr}.form-group.full{grid-column:span 1}.admin-table{min-width:760px}}

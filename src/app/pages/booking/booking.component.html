@@ -1,0 +1,63 @@
+<section class="booking-page">
+  <div class="container">
+    <div class="booking-layout">
+      <mat-card class="booking-card selected-card">
+        <div class="selected-image" *ngIf="equipmentImage || equipmentId">
+          <img [src]="equipmentImage || 'https://placehold.co/640x420?text=AgriRent'" [alt]="equipmentName">
+        </div>
+
+        <mat-card-header>
+          <mat-card-title>Selected Equipment</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          <p><strong>Name:</strong> {{ equipmentName }}</p>
+          <p><strong>Price per day:</strong> Rs {{ pricePerDay }}</p>
+          <p *ngIf="location"><strong>Location:</strong> {{ location }}</p>
+          <p *ngIf="!equipmentId" class="info-text">Click Rent Now from the equipment page to open this booking form.</p>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="booking-card form-card">
+        <mat-card-header>
+          <mat-card-title>Booking Form</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          <form class="booking-form" [formGroup]="bookingForm" (ngSubmit)="submitBooking()">
+            <mat-form-field appearance="outline">
+              <mat-label>Start Date</mat-label>
+              <input matInput [matDatepicker]="startPicker" formControlName="startDate" [min]="today" readonly>
+              <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+              <mat-datepicker #startPicker></mat-datepicker>
+              <mat-error *ngIf="bookingForm.get('startDate')?.touched && bookingForm.get('startDate')?.hasError('required')">Start date is required</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>End Date</mat-label>
+              <input matInput [matDatepicker]="endPicker" formControlName="endDate" [min]="bookingForm.value.startDate || today" readonly>
+              <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+              <mat-datepicker #endPicker></mat-datepicker>
+              <mat-error *ngIf="bookingForm.get('endDate')?.touched && bookingForm.get('endDate')?.hasError('required')">End date is required</mat-error>
+              <mat-error *ngIf="bookingForm.get('endDate')?.touched && showDateRangeError">End date must be after or equal to start date</mat-error>
+            </mat-form-field>
+
+            <mat-divider></mat-divider>
+
+            <div class="price-box">
+              <p><strong>Total Days:</strong> {{ totalDays }}</p>
+              <p><strong>Total Price:</strong> Rs {{ totalPrice }}</p>
+            </div>
+
+            <p class="error-text" *ngIf="errorMessage">{{ errorMessage }}</p>
+            <p class="success-text" *ngIf="successMessage">{{ successMessage }}</p>
+
+            <button mat-flat-button type="submit" class="agrirent-btn" [disabled]="isSubmitting || !equipmentId">
+              {{ isSubmitting ? 'Submitting...' : 'Confirm Booking' }}
+            </button>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</section>

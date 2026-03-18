@@ -1,0 +1,24 @@
+<nav class="navbar" [class.scrolled]="isScrolled">
+
+  <a routerLink="/" class="logo">AgriRent</a>
+
+  <ul class="nav-links">
+    <li><a routerLink="/" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">Home</a></li>
+    <li><a routerLink="/equipment" routerLinkActive="active-link">Equipment</a></li>
+    <li><a routerLink="/about" routerLinkActive="active-link">About Us</a></li>
+    <li><a routerLink="/contact" routerLinkActive="active-link">Contact Us</a></li>
+    <li *ngIf="canManageEquipment$ | async"><a routerLink="/admin" routerLinkActive="active-link">Admin</a></li>
+  </ul>
+
+  <div class="nav-btn" *ngIf="isLoggedIn$ | async; else guestActions">
+    <span class="user-name">Hi, {{ userName$ | async }}</span>
+    <button type="button" class="login-btn logout-btn" (click)="logout()">Logout</button>
+  </div>
+
+  <ng-template #guestActions>
+    <div class="nav-btn">
+      <a routerLink="/login" routerLinkActive="active-btn" class="login-btn">Login</a>
+    </div>
+  </ng-template>
+
+</nav>

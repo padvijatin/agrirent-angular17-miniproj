@@ -1,0 +1,60 @@
+.booking-page {
+  padding: 42px 20px 72px;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.booking-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 22px;
+}
+
+.booking-card {
+  overflow: hidden;
+}
+
+.selected-image {
+  margin: -16px -16px 18px;
+  height: 220px;
+  overflow: hidden;
+  background: #eef3ef;
+}
+
+.selected-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.booking-form {
+  display: grid;
+  gap: 10px;
+}
+
+.price-box {
+  padding: 8px 0;
+}
+
+.price-box p,
+.info-text,
+.error-text,
+.success-text {
+  margin: 0 0 10px;
+}
+
+.error-text {
+  color: #b91c1c;
+}
+
+.success-text {
+  color: #166534;
+}
+
+.info-text {
+  color: #64748b;
+}

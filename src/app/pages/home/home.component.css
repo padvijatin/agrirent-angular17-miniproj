@@ -1,0 +1,56 @@
+:host {
+  display: block;
+}
+
+.home-page {
+  min-height: calc(100vh - 135px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px 56px;
+}
+
+.welcome-card {
+  width: min(760px, 100%);
+  text-align: center;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(46, 125, 50, 0.12);
+  border-radius: 28px;
+  padding: 56px 32px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+}
+
+.welcome-tag {
+  display: inline-block;
+  margin-bottom: 14px;
+  color: #2e7d32;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.welcome-card h1 {
+  margin: 0 0 14px;
+  color: #1c3b22;
+  font-size: clamp(2.1rem, 4vw, 3.6rem);
+  line-height: 1.08;
+}
+
+.welcome-card p {
+  margin: 0;
+  color: #617065;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+.browse-btn {
+  display: inline-block;
+  margin-top: 28px;
+  padding: 13px 24px;
+  border-radius: 999px;
+  background: #2e7d32;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+}
