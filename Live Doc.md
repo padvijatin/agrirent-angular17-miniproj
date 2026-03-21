@@ -1,7 +1,7 @@
 # AgriRent Live Doc
 
 ## Overview
-AgriRent is an Angular 17 application that uses Firebase Authentication on the client and talks to a separate Node.js + Express backend for user, equipment, and booking data.
+AgriRent is an Angular 17 application that uses Firebase Authentication on the client and talks to a separate local Node.js + Express backend for users, equipment, bookings, contact email delivery, and admin message management.
 
 Current workspace layout:
 
@@ -17,7 +17,7 @@ C:\Projects\Angular
 
 ### Frontend
 - Angular 17 standalone components
-- Angular Router
+- Angular Router with route-level lazy loading
 - Angular Reactive Forms
 - Angular Material
 - Angular SSR / prerender setup
@@ -29,6 +29,7 @@ C:\Projects\Angular
 - Express
 - MongoDB + Mongoose
 - Firebase Admin SDK
+- Nodemailer
 - Multer
 - CORS
 - Dotenv
@@ -40,7 +41,8 @@ Angular frontend
   -> Firebase Auth for login and registration
   -> Firebase ID token attached to protected API requests
   -> Express backend verifies the token
-  -> MongoDB stores users, equipment, and bookings
+  -> MongoDB stores users, equipment, bookings, and messages
+  -> Nodemailer handles contact emails
 ```
 
 ## Frontend Structure
@@ -76,6 +78,8 @@ app
 - `src/app/core/services/auth.service.ts`
 - `src/app/core/services/equipment.service.ts`
 - `src/app/core/services/booking.service.ts`
+- `src/app/core/services/contact.service.ts`
+- `src/app/core/services/message.service.ts`
 - `src/app/core/guards/auth.guard.ts`
 - `src/app/core/guards/role.guard.ts`
 
@@ -123,6 +127,7 @@ Unknown routes redirect back to `/`.
 - load the current user profile from backend
 - fall back to Firebase profile data if backend lookup fails
 - fetch all users for the admin dashboard
+- create shared Firebase auth headers for protected API requests
 - expose `currentUser$` and `userState$`
 
 ### `EquipmentService`
@@ -140,15 +145,32 @@ Unknown routes redirect back to `/`.
 - load owner bookings for admin management
 - update booking status to `approved`, `rejected`, or `cancelled`
 
+### `ContactService`
+- submit the contact form to the backend
+
+### `MessageService`
+- load all contact messages for admin
+- mark a message as read
+- delete a message
+
 ## Admin Dashboard
 
 The current admin page includes:
 
-- overview cards for total equipment, available equipment, approved bookings, pending bookings, and users
+- overview cards for total equipment, pending bookings, users, and unread messages
 - owner/admin equipment CRUD
 - image upload with type validation and 10 MB size limit
 - booking management using owner-facing booking endpoints
 - user list loading for admin visibility
+- contact message inbox management with read and delete actions
+
+## Contact Flow
+1. User fills the Angular contact form.
+2. Frontend sends `POST /api/contact`.
+3. Backend validates the payload.
+4. Nodemailer sends the email.
+5. The message can be saved in MongoDB.
+6. Admin users can review the message from the dashboard.
 
 ## API Used By The Frontend
 
@@ -175,6 +197,12 @@ The current admin page includes:
 - `GET /api/bookings/me`
 - `GET /api/bookings/owner`
 - `PATCH /api/bookings/:id/status`
+
+### Contact And Messages
+- `POST /api/contact`
+- `GET /api/messages`
+- `PATCH /api/messages/:id/read`
+- `DELETE /api/messages/:id`
 
 ## Current Data Models In Frontend
 
@@ -211,6 +239,24 @@ The current admin page includes:
 - nested `equipment`
 - nested `user`
 
+### Message
+- `id`
+- `fullName`
+- `email`
+- `phone`
+- `subject`
+- `message`
+- `isRead`
+- `readAt`
+- `createdAt`
+
+## UI Notes
+- route-level lazy loading is used for the main pages
+- Home uses a hero background image from `src/assets/hero.jpg`
+- Home shows only a few featured equipment cards instead of the full equipment list
+- About and Contact use simple rounded sections/cards
+- Material is kept mainly where it helps forms, cards, chips, tables, and dashboard actions
+
 ## Environment Notes
 
 ### Frontend
@@ -224,18 +270,22 @@ Expected values include:
 - `CLIENT_URL`
 - `MONGODB_URI`
 - Firebase Admin credentials
+- SMTP settings for contact email
 
 ## Verification Notes
 
 Verification performed in this update:
 
-- checked the current route setup and service layer
-- confirmed the frontend is wired to booking owner/status endpoints and user listing
+- reviewed routes, guards, services, and page structure
+- confirmed route-level lazy loading remains active
+- removed obvious unused and repeated code in the frontend
+- centralized repeated Firebase auth header generation in `AuthService`
 - ran `npm run build`
 
 Build result:
-- production build now passes after increasing the Angular initial bundle budget from `1mb` to `1.2mb`
+- production build passes
 - Angular still reports a warning for the Firebase `undici` dependency during SSR build
+- `home.component.css` still shows a non-blocking component CSS budget warning
 
 ## Current Working Features
 - Firebase registration and login
@@ -246,12 +296,15 @@ Build result:
 - booking creation form
 - owner/admin equipment create, edit, and delete
 - owner/admin booking review actions
+- contact form submission to backend
+- admin contact message inbox
 - owner/admin protected dashboard
 - admin user list retrieval
+- home, about, and contact pages updated to the current project design
 
 ## Known Notes
 - the SSR build still shows an `undici` CommonJS warning from Firebase dependencies
-- bundle size is larger than the original default Angular budget, so the budget was raised to match the current app size
+- `home.component.css` is above the default Angular component CSS warning budget
 - the backend folder exists locally but is not part of the tracked frontend git repository in this workspace
 
 ## Run Commands
@@ -272,6 +325,6 @@ npm run dev
 
 ## Next Recommended Work
 1. Add admin UI for changing user roles, not just viewing users.
-2. Add a booking history view for normal users.
-3. Add equipment details and richer filtering/search.
-4. Reduce the initial bundle size so the raised budget can be tightened again later.
+2. Add richer equipment filtering if the project needs it later.
+3. Reduce the Home page CSS size if you want to remove the remaining Angular warning.
+4. If needed later, move backend docs into a separate backend repository README for cleaner project separation.

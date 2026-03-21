@@ -4,7 +4,7 @@
       <div class="sidebar-top">
         <p class="eyebrow">Admin Panel</p>
         <h1>AgriRent Workspace</h1>
-        <p>Manage your equipment, booking requests, and users from one simple dashboard.</p>
+        <p>Manage your equipment, booking requests, users, and contact messages from one simple dashboard.</p>
       </div>
 
       <button class="side-link" [class.active]="activeSection === 'overview'" (click)="setSection('overview')">
@@ -39,6 +39,14 @@
         </span>
       </button>
 
+      <button class="side-link" [class.active]="activeSection === 'messages'" (click)="setSection('messages')">
+        <span class="icon-box"><mat-icon>mail</mat-icon></span>
+        <span>
+          <strong>Messages</strong>
+          <small>Inbox and actions</small>
+        </span>
+      </button>
+
       <div class="profile-box">
         <p class="eyebrow">Signed In</p>
         <h3>{{ userName$ | async }}</h3>
@@ -50,8 +58,8 @@
       <mat-card class="hero-card">
         <div class="hero-copy">
           <p class="eyebrow">Workspace</p>
-          <h2>Owner Control Center</h2>
-          <p>See your equipment status, booking requests, and user activity in one place.</p>
+          <h2>Admin Control Center</h2>
+          <p>See platform activity, contact requests, and rental operations in one place.</p>
         </div>
         <button mat-flat-button class="agrirent-btn hero-action" (click)="openEquipmentForm()">
           <mat-icon>add</mat-icon>
@@ -69,16 +77,16 @@
             <h3>{{ totalEquipment }}</h3>
           </mat-card>
           <mat-card class="stat-card">
-            <p>Available</p>
-            <h3>{{ availableEquipment }}</h3>
-          </mat-card>
-          <mat-card class="stat-card">
-            <p>Booked</p>
-            <h3>{{ bookedEquipment }}</h3>
+            <p>Pending Bookings</p>
+            <h3>{{ pendingBookings }}</h3>
           </mat-card>
           <mat-card class="stat-card">
             <p>Total Users</p>
             <h3>{{ totalUsers }}</h3>
+          </mat-card>
+          <mat-card class="stat-card">
+            <p>Unread Messages</p>
+            <h3>{{ unreadMessages }}</h3>
           </mat-card>
         </div>
 
@@ -102,6 +110,14 @@
             <div class="overview-row">
               <span>Pending requests waiting for action</span>
               <strong>{{ pendingBookings }}</strong>
+            </div>
+            <div class="overview-row">
+              <span>Total messages received from contact form</span>
+              <strong>{{ totalMessages }}</strong>
+            </div>
+            <div class="overview-row">
+              <span>Unread contact messages</span>
+              <strong>{{ unreadMessages }}</strong>
             </div>
             <div class="overview-row">
               <span>Registered owners</span>
@@ -343,7 +359,62 @@
           </table>
         </div>
       </mat-card>
+
+      <mat-card *ngIf="activeSection === 'messages'" class="panel">
+        <div class="panel-head compact-head">
+          <h3>Contact Messages</h3>
+          <span class="muted">Read incoming messages, mark them as handled, or delete them.</span>
+        </div>
+
+        <div *ngIf="messagesLoading" class="empty-state">Loading messages...</div>
+        <div *ngIf="!messagesLoading && messageList.length === 0" class="empty-state">No contact messages yet.</div>
+
+        <div class="table-wrap" *ngIf="!messagesLoading && messageList.length > 0">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Sender</th>
+                <th>Subject</th>
+                <th>Message</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let message of messageList; trackBy: trackByMessage" [class.unread-row]="!message.isRead">
+                <td>
+                  <strong>{{ message.fullName }}</strong>
+                  <div class="meta-line">{{ message.email }}</div>
+                  <div class="meta-line">{{ message.phone || 'No phone' }}</div>
+                </td>
+                <td>{{ message.subject }}</td>
+                <td>
+                  <div class="message-preview">{{ message.message }}</div>
+                </td>
+                <td>{{ message.createdAt ? (message.createdAt | date:'dd MMM y, hh:mm a') : '-' }}</td>
+                <td>
+                  <span class="status-tag" [class.pending]="!message.isRead" [class.approved]="message.isRead">
+                    {{ message.isRead ? 'Read' : 'Unread' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <button mat-flat-button type="button" class="agrirent-btn action-btn" *ngIf="!message.isRead" [disabled]="actionMessageId === message.id" (click)="markMessageAsRead(message)">
+                      <mat-icon>drafts</mat-icon>
+                      <span>Mark Read</span>
+                    </button>
+                    <button mat-stroked-button type="button" class="agrirent-btn-secondary action-btn" [disabled]="actionMessageId === message.id" (click)="deleteMessage(message)">
+                      <mat-icon>delete</mat-icon>
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </mat-card>
     </div>
   </div>
 </section>
-

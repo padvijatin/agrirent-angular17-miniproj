@@ -8,7 +8,7 @@ C:\Projects\Angular\
   backend\
 ```
 
-## Frontend
+## Frontend Repository
 
 ```text
 src/
@@ -18,12 +18,18 @@ src/
         firebase.config.ts
       guards/
         auth.guard.ts
+        role.guard.ts
       models/
+        booking.model.ts
         equipment.model.ts
+        message.model.ts
         user.model.ts
       services/
         auth.service.ts
+        booking.service.ts
+        contact.service.ts
         equipment.service.ts
+        message.service.ts
     components/
       footer/
       navbar/
@@ -46,9 +52,11 @@ src/
     app.component.ts
     app.config.ts
     app.routes.ts
+  assets/
+    hero.jpg
 ```
 
-## Backend
+## Local Backend App Used By Frontend
 
 ```text
 backend/
@@ -57,7 +65,9 @@ backend/
     firebaseAdmin.js
   controllers/
     bookingController.js
+    contactController.js
     equipmentController.js
+    messageController.js
     userController.js
   middleware/
     authMiddleware.js
@@ -66,10 +76,13 @@ backend/
   models/
     Booking.js
     Equipment.js
+    Message.js
     User.js
   routes/
     bookingRoutes.js
+    contactRoutes.js
     equipmentRoutes.js
+    messageRoutes.js
     userRoutes.js
   .env
   .env.example
@@ -79,7 +92,9 @@ backend/
 
 ## Why this structure
 
-- `core/` is for app-wide logic used everywhere.
+- `core/` is for app-wide logic used across multiple pages.
 - `components/` is for reusable UI pieces like navbar and footer.
-- `pages/` keeps the route-level screens simple and easy to find.
-- `backend/` is separated from Angular so API code, MongoDB models, and Firebase Admin stay clean and maintainable.
+- `pages/` keeps route-level screens simple and easy to find.
+- route-level lazy loading keeps the Angular app more practical for real navigation.
+- `backend/` is separated from Angular so API code, MongoDB models, Firebase Admin, and Nodemailer logic stay independent.
+- auth header generation is shared through `AuthService` so API services do not repeat the same token-building code.

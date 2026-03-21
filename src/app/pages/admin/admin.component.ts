@@ -12,11 +12,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { Equipment } from '../../core/models/equipment.model';
 import { Booking } from '../../core/models/booking.model';
 import { User } from '../../core/models/user.model';
+import { Message } from '../../core/models/message.model';
 import { EquipmentService } from '../../core/services/equipment.service';
 import { BookingService } from '../../core/services/booking.service';
 import { AuthService } from '../../core/services/auth.service';
+import { MessageService } from '../../core/services/message.service';
 
-type AdminSection = 'overview' | 'equipment' | 'bookings' | 'users';
+type AdminSection = 'overview' | 'equipment' | 'bookings' | 'users' | 'messages';
 type BookingAction = 'approved' | 'rejected' | 'cancelled';
 
 @Component({
@@ -40,7 +42,7 @@ export class AdminComponent implements OnInit {
   @ViewChild('imageInputRef') imageInputRef?: ElementRef<HTMLInputElement>;
 
   currentUser$ = this.authService.currentUser$;
-  userName$ = this.currentUser$.pipe(map((user) => user?.fullName || 'Owner'));
+  userName$ = this.currentUser$.pipe(map((user) => user?.fullName || 'Admin'));
   userEmail$ = this.currentUser$.pipe(map((user) => user?.email || ''));
 
   activeSection: AdminSection = 'overview';
@@ -49,14 +51,17 @@ export class AdminComponent implements OnInit {
   listLoading = true;
   bookingsLoading = true;
   usersLoading = true;
+  messagesLoading = true;
   successMessage = '';
   errorMessage = '';
   isEditing = false;
   editingId = '';
   actionBookingId = '';
+  actionMessageId = '';
   equipmentList: Equipment[] = [];
   bookingList: Booking[] = [];
   userList: User[] = [];
+  messageList: Message[] = [];
   formSubmitted = false;
 
   equipment: Equipment = this.getEmptyEquipment();
@@ -68,11 +73,17 @@ export class AdminComponent implements OnInit {
   constructor(
     private readonly equipmentService: EquipmentService,
     private readonly bookingService: BookingService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly messageService: MessageService
   ) {}
 
   async ngOnInit() {
-    await Promise.all([this.loadEquipment(), this.loadBookings(), this.loadUsers()]);
+    await Promise.all([
+      this.loadEquipment(),
+      this.loadBookings(),
+      this.loadUsers(),
+      this.loadMessages()
+    ]);
   }
 
   get totalEquipment() {
@@ -101,6 +112,14 @@ export class AdminComponent implements OnInit {
 
   get adminUsers() {
     return this.userList.filter((user) => user.role === 'admin').length;
+  }
+
+  get totalMessages() {
+    return this.messageList.length;
+  }
+
+  get unreadMessages() {
+    return this.messageList.filter((message) => !message.isRead).length;
   }
 
   setSection(section: AdminSection) {
@@ -157,6 +176,23 @@ export class AdminComponent implements OnInit {
       }
     } finally {
       this.usersLoading = false;
+    }
+  }
+
+  async loadMessages() {
+    this.messagesLoading = true;
+
+    try {
+      this.messageList = await this.messageService.getAllMessages();
+    } catch (error: any) {
+      console.error('Could not load messages.', error);
+      this.messageList = [];
+
+      if (error?.error?.message) {
+        this.errorMessage = error.error.message;
+      }
+    } finally {
+      this.messagesLoading = false;
     }
   }
 
@@ -328,6 +364,54 @@ export class AdminComponent implements OnInit {
     }
   }
 
+  async markMessageAsRead(message: Message) {
+    if (!message.id || message.isRead) {
+      return;
+    }
+
+    this.actionMessageId = message.id;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    try {
+      const updatedMessage = await this.messageService.markAsRead(message.id);
+      this.messageList = this.messageList.map((item) => item.id === updatedMessage.id ? updatedMessage : item);
+      this.successMessage = 'Message marked as read.';
+    } catch (error: any) {
+      console.error('Could not mark message as read.', error);
+      this.errorMessage = error?.error?.message || 'Failed to update the message.';
+    } finally {
+      this.actionMessageId = '';
+    }
+  }
+
+  async deleteMessage(message: Message) {
+    if (!message.id) {
+      return;
+    }
+
+    const confirmed = confirm(`Delete message from ${message.fullName}?`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.actionMessageId = message.id;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    try {
+      const response = await this.messageService.deleteMessage(message.id);
+      this.messageList = this.messageList.filter((item) => item.id !== message.id);
+      this.successMessage = response.message;
+    } catch (error: any) {
+      console.error('Could not delete message.', error);
+      this.errorMessage = error?.error?.message || 'Failed to delete the message.';
+    } finally {
+      this.actionMessageId = '';
+    }
+  }
+
   canApprove(booking: Booking) {
     return booking.status === 'pending';
   }
@@ -346,6 +430,10 @@ export class AdminComponent implements OnInit {
 
   trackByUser(_index: number, user: User) {
     return user.id || user.firebaseUid || user.email;
+  }
+
+  trackByMessage(_index: number, message: Message) {
+    return message.id;
   }
 
   resetForm() {

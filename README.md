@@ -1,6 +1,6 @@
 # AgriRent Frontend
 
-AgriRent is an Angular 17 application for an agricultural equipment rental platform. This repository contains the frontend app, which uses Firebase Authentication and connects to a separate Express + MongoDB backend for users, equipment, and bookings.
+AgriRent is an Angular 17 frontend for an agricultural equipment rental platform. The app uses Firebase Authentication on the client and connects to a separate local Node.js + Express backend for users, equipment, bookings, and contact messages.
 
 ## Project Setup
 
@@ -12,20 +12,20 @@ C:\Projects\Angular
 +-- backend
 ```
 
-Frontend repo:
+Frontend git repository:
 - `C:\Projects\Angular\agrirent-frontend`
 
-Backend app:
+Local backend app used by the frontend:
 - `C:\Projects\Angular\backend`
 
 ## Tech Stack
 - Angular 17 standalone components
-- Angular Router
+- Angular Router with route-level lazy loading
 - Angular Reactive Forms
 - Angular Material
-- Angular SSR / prerender setup
 - Angular `HttpClient`
 - Firebase Authentication
+- Angular SSR / prerender setup
 
 ## Frontend Structure
 
@@ -67,10 +67,13 @@ Unknown routes redirect to `/`.
 - Firebase registration and login
 - backend-backed user profile sync
 - role-based route protection
-- public equipment listing
+- lazy-loaded route pages
+- public equipment listing with search
 - booking creation flow
 - owner/admin equipment management
 - owner/admin booking status management
+- contact form connected to backend email flow
+- admin message inbox with read and delete actions
 - admin user list loading
 
 ## Authentication
@@ -79,6 +82,22 @@ Unknown routes redirect to `/`.
 - backend verifies the token
 - MongoDB stores user profiles and roles
 - `roleGuard` refreshes the backend profile before checking admin access
+- shared auth headers are now generated through `AuthService` and reused across API services
+
+## Contact And Admin Message Flow
+- the Contact page sends a real POST request through `ContactService`
+- the backend sends the email with Nodemailer
+- contact messages can also be stored in MongoDB on the backend
+- the Admin page includes a Messages section to:
+  - view all messages
+  - mark a message as read
+  - delete a message
+
+## Home, About, And Contact Pages
+- Home uses a custom hero with `src/assets/hero.jpg`
+- Home shows only a few featured equipment cards instead of the full listing
+- About and Contact use simple rounded sections/cards instead of heavy landing-page styling
+- featured equipment on Home reuses the same general card style as the equipment page
 
 ## Environment Requirements
 
@@ -114,6 +133,7 @@ Expected backend setup includes:
 - `CLIENT_URL`
 - `MONGODB_URI`
 - Firebase Admin credentials
+- SMTP / contact email settings in `backend/.env`
 
 ## Run Locally
 
@@ -139,11 +159,13 @@ Backend health check:
 
 ## Verification
 - `npm run build` completes successfully
+- route-level lazy loading is active for the main pages
+- contact form and admin message UI are wired in the frontend
 - Angular SSR build still shows the Firebase `undici` warning
-- the Angular initial bundle budget was raised to fit the current app size
+- `home.component.css` still has a non-blocking Angular CSS budget warning
 
 ## Important Note
-This repo is the Angular frontend. The backend is kept as a separate local app in `C:\Projects\Angular\backend` and is not part of this git repository.
+This repository is the Angular frontend. The backend is kept as a separate local app in `C:\Projects\Angular\backend` and is not part of this git repository.
 
 For a fuller technical write-up, see:
 - [Live Doc.md](./Live%20Doc.md)

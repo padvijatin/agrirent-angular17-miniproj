@@ -18,11 +18,15 @@
       <span>Loading equipment...</span>
     </div>
 
-    <div *ngIf="!loading && filteredEquipment.length === 0" class="state-box">
+    <div *ngIf="!loading && errorMessage" class="state-box">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!loading && !errorMessage && filteredEquipment.length === 0" class="state-box">
       No equipment found.
     </div>
 
-    <div class="equipment-grid" *ngIf="!loading && filteredEquipment.length > 0">
+    <div class="equipment-grid" *ngIf="!loading && !errorMessage && filteredEquipment.length > 0">
       <mat-card class="equipment-card" *ngFor="let item of filteredEquipment">
         <div class="card-media">
           <img [src]="item.imageUrl || 'https://placehold.co/640x420?text=AgriRent'" [alt]="item.name">

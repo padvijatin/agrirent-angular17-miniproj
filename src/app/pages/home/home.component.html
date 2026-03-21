@@ -1,8 +1,129 @@
 <section class="home-page">
-  <div class="welcome-card">
-    <span class="welcome-tag">Welcome</span>
-    <h1>Welcome to AgriRent</h1>
-    <p>Rent smart farm equipment easily, quickly, and securely.</p>
-    <a routerLink="/equipment" class="browse-btn">Browse Equipment</a>
+  <div class="home-container">
+    <section class="hero-section">
+      <div class="hero-overlay">
+        <p class="section-label">AgriRent</p>
+        <h1>Rent farm equipment when you need it, without the heavy cost of buying.</h1>
+        <p class="hero-text">
+          Find useful farm machinery, compare options, and book only when needed. AgriRent is made to keep the process simple for
+          both farmers and equipment owners.
+        </p>
+
+        <div class="hero-actions">
+          <a routerLink="/equipment" class="primary-link">Browse Equipment</a>
+          <a routerLink="/contact" class="secondary-link">Contact Us</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="intro-section">
+      <div>
+        <h2>Why AgriRent</h2>
+        <p>
+          Buying farm machinery is not possible for everyone. AgriRent helps farmers access equipment when it is needed, while also
+          helping owners make use of machines that would otherwise stay idle.
+        </p>
+      </div>
+      <ul class="intro-points">
+        <li>Search by machine type or location</li>
+        <li>Check price and availability clearly</li>
+        <li>Book only for the dates you need</li>
+      </ul>
+    </section>
+
+    <section class="home-section steps-section">
+      <div class="section-head">
+        <div>
+          <h2>How It Works</h2>
+          <p>A short and simple process for booking equipment.</p>
+        </div>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-item">
+          <span>01</span>
+          <h3>Search Equipment</h3>
+          <p>Look for tractors, harvesters, sprayers, and other machines based on your work.</p>
+        </div>
+        <div class="step-item">
+          <span>02</span>
+          <h3>Compare Options</h3>
+          <p>Check the location, pricing, and details before choosing the right machine.</p>
+        </div>
+        <div class="step-item">
+          <span>03</span>
+          <h3>Book Easily</h3>
+          <p>Continue to booking and rent the equipment only for the dates you need.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="home-section featured-section">
+      <div class="section-head">
+        <div>
+          <h2>Featured Equipment</h2>
+          <p>Only a few items are shown here. You can explore everything on the equipment page.</p>
+        </div>
+        <a routerLink="/equipment" class="text-link">View All</a>
+      </div>
+
+      <div class="featured-state" *ngIf="loadingFeatured">Loading featured equipment...</div>
+      <div class="featured-state" *ngIf="!loadingFeatured && featuredEquipment.length === 0">No equipment available right now.</div>
+
+      <div class="equipment-grid" *ngIf="!loadingFeatured && featuredEquipment.length > 0">
+        <mat-card class="equipment-card" *ngFor="let item of featuredEquipment; trackBy: trackByEquipment">
+          <div class="card-media">
+            <img [src]="item.imageUrl || 'https://placehold.co/640x420?text=AgriRent'" [alt]="item.name" loading="lazy">
+
+            <span class="stock-badge" [class.available]="item.available" [class.unavailable]="!item.available">
+              {{ item.available ? 'Available' : 'Unavailable' }}
+            </span>
+          </div>
+
+          <mat-card-content class="card-content">
+            <div class="title-row">
+              <h3>{{ item.name }}</h3>
+              <span class="mini-price">Rs {{ item.pricePerDay }}</span>
+            </div>
+
+            <p class="subtitle">{{ item.description }}</p>
+
+            <mat-chip-set class="chip-row">
+              <mat-chip class="agrirent-chip">{{ item.category | titlecase }}</mat-chip>
+              <mat-chip *ngIf="item.location">{{ item.location }}</mat-chip>
+              <mat-chip *ngIf="item.available">Ready to rent</mat-chip>
+            </mat-chip-set>
+          </mat-card-content>
+
+          <mat-card-actions class="price-row">
+            <div>
+              <p class="price">Rs {{ item.pricePerDay }}</p>
+              <span class="price-note">Per day rental</span>
+            </div>
+
+            <a
+              mat-flat-button
+              class="agrirent-btn rent-btn"
+              [class.disabled]="!item.available"
+              [routerLink]="item.available ? ['/booking'] : ['/equipment']"
+              [queryParams]="item.available ? getBookingParams(item) : null"
+            >
+              {{ item.available ? 'Rent Now' : 'View' }}
+            </a>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </section>
+
+    <section class="home-section purpose-section">
+      <div class="purpose-text">
+        <h2>Built for Practical Use</h2>
+        <p>
+          AgriRent is designed around real use, not just appearance. Along with equipment browsing and booking, the project also
+          includes contact email support, admin message handling, and role-based access.
+        </p>
+      </div>
+      <a routerLink="/about" class="text-link">Read More About AgriRent</a>
+    </section>
   </div>
 </section>

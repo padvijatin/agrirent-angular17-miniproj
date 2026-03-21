@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { Equipment } from '../models/equipment.model';
 import { environment } from '../../../environments/environment';
-import { auth } from '../config/firebase.config';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,50 +11,42 @@ import { auth } from '../config/firebase.config';
 export class EquipmentService {
   private readonly apiUrl = `${environment.apiUrl}/equipment`;
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly authService: AuthService
+  ) {}
 
   async getAllEquipment() {
-    try {
-      return await firstValueFrom(this.http.get<Equipment[]>(this.apiUrl));
-    } catch (error) {
-      console.warn('Could not load equipment.', error);
-      return [];
-    }
+    const response = await firstValueFrom(this.http.get<Equipment[] | { items?: Equipment[]; data?: Equipment[] }>(this.apiUrl));
+    return this.normalizeEquipmentList(response);
   }
 
   async getMyEquipment() {
-    try {
-      return await firstValueFrom(
-        this.http.get<Equipment[]>(`${this.apiUrl}/mine`, {
-          headers: await this.getAuthHeaders()
-        })
-      );
-    } catch (error) {
-      console.warn('Could not load your equipment.', error);
-      return [];
-    }
+    const response = await firstValueFrom(
+      this.http.get<Equipment[] | { items?: Equipment[]; data?: Equipment[] }>(`${this.apiUrl}/mine`, {
+        headers: await this.authService.getAuthHeaders()
+      })
+    );
+
+    return this.normalizeEquipmentList(response);
   }
 
   async getEquipmentByCategory(category: string) {
-    try {
-      return await firstValueFrom(
-        this.http.get<Equipment[]>(this.apiUrl, {
-          params: { category }
-        })
-      );
-    } catch (error) {
-      console.warn('Could not load equipment by category.', error);
-      return [];
-    }
+    const response = await firstValueFrom(
+      this.http.get<Equipment[] | { items?: Equipment[]; data?: Equipment[] }>(this.apiUrl, {
+        params: { category }
+      })
+    );
+
+    return this.normalizeEquipmentList(response);
   }
 
   async getAvailableEquipment() {
-    try {
-      return await firstValueFrom(this.http.get<Equipment[]>(`${this.apiUrl}/available`));
-    } catch (error) {
-      console.warn('Could not load available equipment.', error);
-      return [];
-    }
+    const response = await firstValueFrom(
+      this.http.get<Equipment[] | { items?: Equipment[]; data?: Equipment[] }>(`${this.apiUrl}/available`)
+    );
+
+    return this.normalizeEquipmentList(response);
   }
 
   async addEquipment(equipment: Equipment, imageFile?: File) {
@@ -62,11 +54,11 @@ export class EquipmentService {
 
     const createdEquipment = await firstValueFrom(
       this.http.post<Equipment>(this.apiUrl, formData, {
-        headers: await this.getAuthHeaders()
+        headers: await this.authService.getAuthHeaders()
       })
     );
 
-    return createdEquipment.id ?? '';
+    return createdEquipment.id ?? (createdEquipment as Equipment & { _id?: string })._id ?? '';
   }
 
   async updateEquipment(id: string, equipment: Partial<Equipment>, imageFile?: File) {
@@ -74,7 +66,7 @@ export class EquipmentService {
 
     await firstValueFrom(
       this.http.put(`${this.apiUrl}/${id}`, formData, {
-        headers: await this.getAuthHeaders()
+        headers: await this.authService.getAuthHeaders()
       })
     );
   }
@@ -82,9 +74,18 @@ export class EquipmentService {
   async deleteEquipment(id: string) {
     await firstValueFrom(
       this.http.delete(`${this.apiUrl}/${id}`, {
-        headers: await this.getAuthHeaders()
+        headers: await this.authService.getAuthHeaders()
       })
     );
+  }
+
+  private normalizeEquipmentList(response: Equipment[] | { items?: Equipment[]; data?: Equipment[] } | null | undefined) {
+    const list = Array.isArray(response) ? response : response?.items || response?.data || [];
+
+    return list.map((item) => ({
+      ...item,
+      id: item.id ?? (item as Equipment & { _id?: string })._id ?? ''
+    }));
   }
 
   private buildFormData(equipment: Partial<Equipment>, imageFile?: File) {
@@ -103,19 +104,5 @@ export class EquipmentService {
     }
 
     return formData;
-  }
-
-  private async getAuthHeaders() {
-    const currentUser = auth.currentUser;
-
-    if (!currentUser) {
-      throw new Error('Please login first.');
-    }
-
-    const token = await currentUser.getIdToken();
-
-    return new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
   }
 }

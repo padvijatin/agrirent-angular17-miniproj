@@ -150,6 +150,16 @@ export class AuthService {
     return this.refreshCurrentUserProfile();
   }
 
+  async getAuthHeaders() {
+    const firebaseUser = auth.currentUser;
+
+    if (!firebaseUser) {
+      throw new Error('Please login first.');
+    }
+
+    return this.createAuthHeaders(firebaseUser);
+  }
+
   async refreshCurrentUserProfile() {
     const firebaseUser = auth.currentUser;
 
@@ -259,3 +269,4 @@ export class AuthService {
     });
   }
 }
+

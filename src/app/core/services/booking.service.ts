@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { auth } from '../config/firebase.config';
 import { environment } from '../../../environments/environment';
 import { Booking } from '../models/booking.model';
+import { AuthService } from './auth.service';
 
 interface CreateBookingData {
   equipmentId: string;
@@ -18,12 +19,15 @@ interface CreateBookingData {
 export class BookingService {
   private readonly apiUrl = `${environment.apiUrl}/bookings`;
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly authService: AuthService
+  ) {}
 
   async createBooking(data: CreateBookingData) {
     return firstValueFrom(
       this.http.post<Booking>(this.apiUrl, data, {
-        headers: await this.getAuthHeaders()
+        headers: await this.authService.getAuthHeaders()
       })
     );
   }
@@ -36,7 +40,7 @@ export class BookingService {
     try {
       return await firstValueFrom(
         this.http.get<Booking[]>(`${this.apiUrl}/me`, {
-          headers: await this.getAuthHeaders()
+          headers: await this.authService.getAuthHeaders()
         })
       );
     } catch (error) {
@@ -53,7 +57,7 @@ export class BookingService {
     try {
       return await firstValueFrom(
         this.http.get<Booking[]>(`${this.apiUrl}/owner`, {
-          headers: await this.getAuthHeaders()
+          headers: await this.authService.getAuthHeaders()
         })
       );
     } catch (error) {
@@ -68,23 +72,9 @@ export class BookingService {
         `${this.apiUrl}/${bookingId}/status`,
         { status },
         {
-          headers: await this.getAuthHeaders()
+          headers: await this.authService.getAuthHeaders()
         }
       )
     );
-  }
-
-  private async getAuthHeaders() {
-    const currentUser = auth.currentUser;
-
-    if (!currentUser) {
-      throw new Error('Please login first.');
-    }
-
-    const token = await currentUser.getIdToken();
-
-    return new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
   }
 }

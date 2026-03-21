@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -33,17 +33,28 @@ export class EquipmentListingComponent implements OnInit {
   filteredEquipment: Equipment[] = [];
   loading = true;
   searchText = '';
+  errorMessage = '';
 
-  constructor(private readonly equipmentService: EquipmentService) {}
+  constructor(
+    private readonly equipmentService: EquipmentService,
+    private readonly route: ActivatedRoute
+  ) {}
 
   async ngOnInit() {
     this.loading = true;
+    this.errorMessage = '';
 
     try {
       this.equipmentList = await this.equipmentService.getAllEquipment();
-      this.applySearch();
-    } catch (error) {
+      this.route.queryParamMap.subscribe((params) => {
+        this.searchText = (params.get('search') || '').trim();
+        this.applySearch();
+      });
+    } catch (error: any) {
       console.error('Could not load equipment.', error);
+      this.equipmentList = [];
+      this.filteredEquipment = [];
+      this.errorMessage = error?.error?.message || error?.message || 'Could not load equipment. Please check that the backend is running and CORS is configured.';
     } finally {
       this.loading = false;
     }
